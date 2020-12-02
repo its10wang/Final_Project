@@ -1,22 +1,22 @@
-let plane;		   //big plane	
-let colors = [];   //color array
-let enemy = [];  //enemy plane array
-let bullet = [];  //bullet array
-let score = 0;     //score
+let plane;		   //大飞机	
+let colors = [];   //颜色数组
+let enemy = [];  //敌机数组
+let bullet = [];  //子弹数组
+let score = 0;     //得分
 let level = 0;
 
-let bulletNum = 20;  //bullet number
-let bulletuseNum = 0;  //bullet used number
+let bulletNum = 20;  //子弹个数
+let bulletuseNum = 0;  //子弹使用个数
 let bnum = 0;
 let blood = 20;
-let isPause = 0;      //pause or not
-let hitRange = 40;   //hitting range
-// Explosion effect variable 
+let isPause = 0;      //是否暂停
+let hitRange = 40;   //子弹杀伤半径
+/* 爆炸效果变量 */
 plumes = [];
-// Explosion effect color 
+/* 爆炸效果颜色池 */
 firecolors = ["red", "lime", "blue", "cyan", "yellow", "orange", "magenta"];
 
-// Background 1 variable 
+/* 背景1变量 */
 var particles_a = [];
 var particles_b = [];
 var particles_c = [];
@@ -27,7 +27,7 @@ let winlose = 0;
 
 let enemyhitnum = 1;
 let enemyspeed = 5;
-//background2 
+/* 背景2 */
 let scrblrs = [];
 const COLS = createCols("https://coolors.co/242220-ff6a45-ffb094-7934ad-1bc4b6-6a7a5b");
 let img;
@@ -40,7 +40,7 @@ function preload()
 	img1 = loadImage("bg1.jpg");
 }
 
-//Initialization function 
+/* 初始化函数 */
 function setup() 
 {
 	createCanvas(400,windowHeight);
@@ -50,12 +50,12 @@ function setup()
 	colors.push(color(0, 0, 220));
 	colors.push(color(0,153,0));
 	colors.push(color(175, 100, 220));
-	/* Create the enemy */
+	/* 创建敌机 */
 	for(let i = 0 ; i < 9; i++)
 	{
 		enemy.push(new Enemy(401,windowHeight+1));
 	}
-	// Create a bullet 
+	/* 创建子弹 */
 	for(let i = 0 ; i < bulletNum; i++)
 	{
 		bullet.push(new Bullet(i%4));
@@ -69,53 +69,40 @@ function setup()
 	}
 }
 
-// The loop executes the drawing 
+/* 循环执行画图 */
 function draw() 
 {
-	// background(0);
-	//The dynamic background
-	if(level == 0)
+	/* background(0);
+	//动态背景
+	if(level%2===0)
 	{
-		image(img,0,0)
-	}
-	else if(level == 1)
-	{
-		image(img1,0,0)
+		drawbg();
 	}
 	else
 	{
-		background(0);
-		if(level%2===0)
+		for(const scrblr of scrblrs)
 		{
-			drawbg();
+			scrblr.update();
+			scrblr.display();
 		}
-		else
-		{
-			for(const scrblr of scrblrs)
-			{
-				scrblr.update();
-				scrblr.display();
-			}
-		}
-	}
-	 
-	
-	// Draw  star 
+	} */
+	image(img1,0,0)
+	/* 画星星 */
 	star();
-	//Draw small plane
+	//画小飞机
 	for (let i = 1; i < enemy.length; i++)
 	{
 		enemy[i].draw(enemy[i].x,enemy[i].y+enemy[i].len,colors[i%4]);
 	} 
-	// bullet 
+	/* 子弹 */
 	for(let i = 0 ; i < bulletNum; i++)
 	{
 		bullet[i].update();
 		bullet[i].draw();
 	}
-	// draw big plane 
+	/* 画大飞机 */
 	plane.drawPlane(); 
-	// Draw enemy planes 
+	/* 画敌机大飞机 */
 	eplane.drawPlane();
 	if(ebullet.isUsed == 1)
 	{
@@ -127,7 +114,7 @@ function draw()
 		ebullet.init(width/2,80);
 	}
 	
-	//Simple explosion effect display
+	//简单的爆炸效果显示
 	for (let i = 0; i < plumes.length; i++){
 		plumes[i].update();
 		plumes[i].pDraw();
@@ -136,17 +123,17 @@ function draw()
 			i -= 1;
 		}
 	}
-	// Display status information 
+	/* 显示状态信息 */
 	bnum = (bulletNum - bulletuseNum);
 	/* console.log(bulletNum);
 	console.log(bulletuseNum);
 	console.log(bnum); */
 	showStatus();
-	//Decide whether to clear, or fail
+	//判断是否通关，或失败
 	winOrLose();
 }
 
-// Winning or losing judgment 
+/* 输赢判断 */
 function winOrLose()
 {
 	if(blood<0)
@@ -171,7 +158,7 @@ function winOrLose()
 	}
 }
 
-/* Mouse click event */
+/* 鼠标点击事件 */
 function mousePressed()
 {
 	/* for(let i = 0 ; i < bulletNum; i++)
@@ -185,7 +172,7 @@ function mousePressed()
 	} */
 	
 }
-/* effect */
+/* 添加保证效果 */
 function addBloom(x,y)
 {
 	let numPlumes = int(random(100, 500));
@@ -195,7 +182,7 @@ function addBloom(x,y)
 	}
 }
 
-/* Explosion effect class */
+/* 爆炸效果类 */
 class Plume {
 	constructor(x, y, s, c){
 		this.x = x;
@@ -219,14 +206,14 @@ class Plume {
 }
 
 
-/* The keyboard presses the handler
-Q key controls the firing of bullets
-The space bar controls pause and start
+/* 键盘按下处理函数
+Q键控制发射子弹
+空格键控制暂停与开始
  */
 function keyPressed()
 {
 	console.log(keyCode);
-	//'Q key controls the firing of bullets'
+	//'Q控制发射子弹'
 	if(keyCode === 81)  
 	{
 		for(let i = 0 ; i < bulletNum; i++)
@@ -239,7 +226,7 @@ function keyPressed()
 			}
 		}
 	}
-	//The space bar controls pause and start
+	//空格键控制暂停与开始
 	if(keyCode ===32)  
 	{
 		if(isPause === 0)
@@ -253,16 +240,16 @@ function keyPressed()
 			loop();
 		}
 	}
-	/* N Next game */
+	/* N 下一局 */
 	if(keyCode === 78)  
 	{
-		/* Win the next game */
+		/* 成功下一局 */
 		if(winlose === 2)
 		{
 			level++;
-			enemyhitnum = enemyhitnum+level; //number hit
-			enemyspeed = enemyspeed+level;  //speef
-			/* Modify the parameters for the next game */
+			enemyhitnum = enemyhitnum+level; //打中次数
+			enemyspeed = enemyspeed+level;  //速度
+			/* 修改下一局的参数 */
 			for (let i = 1; i < enemy.length; i++)
 			{
 				enemy[i].changelevel(enemyhitnum,enemyspeed);
@@ -272,10 +259,10 @@ function keyPressed()
 			loop();
 		}
 	}	
-	/* R restart */
+	/* R 重新 */
 	if(keyCode === 82)  
 	{
-		/* fail and restart */
+		/* 失败重新 */
 		if(winlose === 1 || winlose === 2)
 		{
 			blood = 20;
@@ -286,25 +273,25 @@ function keyPressed()
 }
 
 
-/* bullet class*/
+/* 子弹类*/
 class Bullet
 {
-	/* Constructor, called when the object is created */
+	/* 构造函数，创建对象时调用 */
 	constructor(color)
 	{
-		this.bulletX = 0;   //bullet position
-		this.bulletY = 0;	//bullet position
-		this.isUsed  = 0;   //used or not   
-		this.color  = color;   //bullet color  
-		this.speed = 3;		   //bullet speed
+		this.bulletX = 0;   //子弹位置
+		this.bulletY = 0;	//子弹位置
+		this.isUsed  = 0;   //是否被使用   
+		this.color  = color;   //子弹颜色 
+		this.speed = 3;		   //子弹的速度
 	}
 	
-	/* Initializes the bullet information according to the firing position of the bullet */
+	/* 根据子弹发射位置初始化子弹信息 */
 	init(x,y)
 	{
-		this.bulletX = x;   //bullet position
-		this.bulletY = y;	//bullet position
-		this.isUsed  = 1;   //used or not  
+		this.bulletX = x;   //子弹位置
+		this.bulletY = y;	//子弹位置
+		this.isUsed  = 1;   //是否被使用  
 	}	
 	
 	/* draw function */
@@ -315,12 +302,12 @@ class Bullet
 			this.drawbullet();
 		}
 	}
-	/* update bullet position */
+	/* 更新子弹的位置 */
 	update()
 	{
 		if(this.isUsed == 1)
 		{
-			//update bullet position
+			//更新子弹的位置
 			this.bulletY = this.bulletY - this.speed;
 			if(this.bulletY<10)
 			{
@@ -330,20 +317,20 @@ class Bullet
 		}
 	}
 	
-	/* draw bullet */
+	/* 画子弹 */
 	drawbullet()
 	{
 		stroke(colors[this.color]%4);
 		fill(colors[this.color%4]);
 		ellipse(this.bulletX,this.bulletY,3,15);
 	}
-	/* get bullet usage */
+	/* 获取子弹使用情况 */
 	getUsed()
 	{
 		return this.isUsed;
 	}
 	
-	/* clear bullet usage */
+	/* 清子弹使用标志 */
 	clearUsed()
 	{
 		this.isUsed = 0;
@@ -351,25 +338,25 @@ class Bullet
 }
 
 
-/* bullet class*/
+/* 子弹类*/
 class EnemyBullet
 {
-	/* Constructor, called when the object is created */
+	/* 构造函数，创建对象时调用 */
 	constructor(color)
 	{
-		this.bulletX = 0;   //bullet position
-		this.bulletY = 0;	//bullet position
-		this.isUsed  = 0;   //used or not   
-		this.color  = color;   //bullet color 
-		this.speed = 3;		   //bullet speed
+		this.bulletX = 0;   //子弹位置
+		this.bulletY = 0;	//子弹位置
+		this.isUsed  = 0;   //是否被使用   
+		this.color  = color;   //子弹颜色 
+		this.speed = 3;		   //子弹的速度
 	}
 	
-	/* Initializes the bullet information according to the firing position of the bullet */
+	/* 根据子弹发射位置初始化子弹信息 */
 	init(x,y)
 	{
-		this.bulletX = x;   //bullet position
-		this.bulletY = y;	//bullet position
-		this.isUsed  = 1;   //used or not  
+		this.bulletX = x;   //子弹位置
+		this.bulletY = y;	//子弹位置
+		this.isUsed  = 1;   //是否被使用  
 	}	
 	
 	/* draw function */
@@ -380,11 +367,12 @@ class EnemyBullet
 			this.drawbullet();
 		}
 	}
-	/* update bullet position */
+	/* 更新子弹的位置 */
 	update()
 	{
 		if(this.isUsed == 1)
 		{
+			//更新子弹的位置
 			this.bulletY = this.bulletY + this.speed;
 			if(this.bulletY> height)
 			{
@@ -393,19 +381,20 @@ class EnemyBullet
 		}
 	}
 	
-	/* draw bullet */
+	/* 画子弹 */
 	drawbullet()
 	{
 		stroke(colors[this.color]%4);
 		fill(colors[this.color%4]);
 		ellipse(this.bulletX,this.bulletY,3,15);
 	}
-	/* bullet usage */
+	/* 获取子弹使用情况 */
 	getUsed()
 	{
 		return this.isUsed;
 	}
 	
+	/* 清子弹使用标志 */
 	clearUsed()
 	{
 		this.isUsed = 0;
@@ -413,20 +402,21 @@ class EnemyBullet
 }
 
 
-/*enemy big plane */
+/*敌机 大飞机类 */
 class EnemyPlane 
 {
-	/* Called when the constructor creates the object */
+	/* 构造函数 创建对象时调用 */
 	constructor() 
 	{
 		this.planeX = width/2;
 		this.planeY = 50;
 	}
-	/* draw plane  */
+	/* 画飞机  */
 	drawPlane()
 	{
 		this.plane(this.planeX,this.planeY);
 	}
+	/* 画飞机的形状 */
 	plane(x,y)
 	{
 		fill(240,166,254);
@@ -438,38 +428,41 @@ class EnemyPlane
 }
 
 
-/* plane class */
+/* 大飞机类 */
 class Plane 
 {
+	/* 构造函数 创建对象时调用 */
 	constructor() 
 	{
 		this.planeX = 160;
 		this.planeY = 500;
 		this.speed = 5;    //速度
 	}
-	/* modify plane position */
+	/* 修改飞机位置 */
 	mouseLister(x,y)
 	{
 		this.planeX = x;
 		this.planeY = y;
 	}
+	/* 画飞机  */
 	drawPlane()
 	{
 		this.update();
-		/* Determine if a large plane was hit */
+		/* 判断大飞机是否被撞到 */
 		for (let i = 1; i < enemy.length; i++)
 		{
 			//enemy[i].draw(enemy[i].x,enemy[i].y+enemy[i].len,colors[i%4]);
 			if(Math.abs(enemy[i].x - this.planeX)<40&&Math.abs(enemy[i].y - this.planeY)<40)
 			{
-				//being hit
+				//被撞击
 				blood--;
+				//小飞机无效
 				enemy[i].clearEnemy();
 			}
 		} 
 		this.plane(this.planeX,this.planeY);
 		//let count = (this.planeX+120)/35;
-		/* bullet */
+		/* 子弹 */
 		/* for(let i=0; i < 3; i++)
 		{
 			for(let j=0;j <= count; j++)
@@ -482,15 +475,15 @@ class Plane
 			}
 		}  */
 	}
-	/* update position */
+	/* 更新位置 */
 	update()
 	{
 		let px;
 		let py;
-		//key pressed
+		//有按键按下
 		if(keyIsPressed === true)
 		{
-			//arrow key left
+			//方向键 向左
 			if (keyCode === LEFT_ARROW) 
 			{
 				px = this.planeX-this.speed;
@@ -498,7 +491,7 @@ class Plane
 				let planeY= this.planeY   ;//mouseY<40?40:mouseY>560?560:mouseY;
 				this.mouseLister(planeX,planeY);
 			}
-			//arrow key right 
+			//方向键 向右
 			if (keyCode === RIGHT_ARROW) 
 			{
 				px = this.planeX+this.speed;
@@ -506,7 +499,7 @@ class Plane
 				let planeY= this.planeY   ;//mouseY<40?40:mouseY>560?560:mouseY;
 				this.mouseLister(planeX,planeY);
 			}
-			//arrow key up 
+			//方向键 向上
 			if (keyCode === UP_ARROW) 
 			{
 				py = this.planeY-this.speed;
@@ -514,7 +507,7 @@ class Plane
 				let planeY= py<40?40:py>560?560:py;
 				this.mouseLister(planeX,planeY);
 			}
-			//arrow key down 
+			//方向键 向下
 			if (keyCode === DOWN_ARROW) 
 			{
 				py = this.planeY+this.speed;
@@ -525,7 +518,7 @@ class Plane
 		}	
 	}
 	
-	/* draw plane */
+	/* 画飞机的形状 */
 	plane(x,y)
 	{
 		fill(58,166,254);
@@ -536,30 +529,31 @@ class Plane
 	}
 }
 
-/* enemy plane class */
+/* 敌机 */
 class Enemy 
 {
+	/* 构造函数，创建对象时调用 */
 	constructor(x,y) 
 	{
 		this.x = x;
 		this.y = y;
-		this.len = 5;  //Control speed control difficulty
-		this.hitnum = 0; //The number of hits, control difficulty
-		this.maxHitnum = 1; //max hit number
+		this.len = 5;  //控制速度  控制难易程度
+		this.hitnum = 0; //被击中次数，控制难易程度
+		this.maxHitnum = 1; //最大被击中次数
 	}
-	/* Modifies the speed and hit times of small aircraft */
+	/* 修改小飞机的速度与打中次数 */
 	changelevel(num,speed)
 	{
 		this.hitnum = num;
 		this.len = speed;
 	}
 	
-	/* draw small planes */
+	/* 画小飞机 */
 	draw(x,y,c)
 	{
 		/* if(plane.planeX<x&&(x-plane.planeX)<50||plane.planeX>x&&(plane.planeX-x)<50)
 		{
-			//if hit score plus
+			//被击中 数据加
 			score++;   
 			y=windowHeight+10;
 			x=999;
@@ -568,38 +562,38 @@ class Enemy
 		
 		for(let i = 0;i< bulletNum;i++)
 		{
-			//valid bullet
+			//有效的子弹
 			if(bullet[i].getUsed()===1)
 			{
-				//Determine if the enemy plane has been hit
+				//判断是否打中敌机
 				if(Math.abs(x-bullet[i].bulletX)<hitRange && Math.abs(y-bullet[i].bulletY)<hitRange)
 				{
-					//bullet invalid
+					//子弹无效
 					bullet[i].clearUsed();
 					bulletuseNum--;
-					//Hit count plus 1
+					//击中次数加1
 					this.hitnum++;
 				}
 			}
 		}
-		//Was shot down
+		//被击落
 		if(this.hitnum>this.maxHitnum)
 		{
-			//Add explosion effect
+			//添加爆炸效果
 			addBloom(x,y);
 			score++;   
 			y=windowHeight+10;
 			x=999;
 		}
-		//Determine if the position increases naturally beyond the range or is struck and exploded
+		//判断位置是否超过范围  自然增加超过范围或者被击爆炸
 		//this.x = x>400?(int)(Math.random()*350)+40:this.x;
 		//this.y = y>windowHeight?-(int)(Math.random()*200):y;
 		if(x>400 || y>windowHeight)
 		{   
-			//restart
+			//重新开始
 			this.x = (int)(Math.random()*350)+40;
 			this.y = -(int)(Math.random()*200);
-			this.hitnum = 0; //reset
+			this.hitnum = 0; //被击中次数清零
 		}
 		else
 		{
@@ -608,13 +602,13 @@ class Enemy
 		}
 		this.MiniPlane(this.x,this.y,c);
 	}
-
+	/* 小飞机无效 */
 	clearEnemy()
 	{
 		this.y=windowHeight+10;
 		this.x=999;
 	}
-	/*Draw the shape of a small plane*/
+	/*画小飞机的形状*/
 	MiniPlane(x,y,c)
 	{
 		fill(c);
@@ -626,7 +620,7 @@ class Enemy
 }
 
 
-/* star */
+/* 星星 */
 function star()
 {
 	let star;
@@ -637,34 +631,34 @@ function star()
 	ellipse(random(width),random(height),star,star);
 }
 
-/* Mouse movement modifies aircraft position */
+/* 鼠标移动 修改飞机位置 */
 function mouseMoved()
 {
 	
 }
-/* Displays the score level and the amount of blood */
+/* 显示得分 等级 以及血量 */
 function showStatus() 
 {
-	/* score */
+	/* 显示得分 */
 	fill(255);
 	textSize(16);
 	text("score:"+score, 5, 16);
-	/* level */
+	/* 显示等级 */
 	fill(255);
 	textSize(16);
 	text("lovel:"+level, 5, 32);
-	/* blood */
+	/* 显示血量 */
 	fill(255);
 	textSize(16);
 	text("bullet:"+bnum, 5, 48);
-	/* blood */
+	/* 显示血量 */
 	fill(255);
 	textSize(16);
 	text("blood:"+blood, 5, 64);
 } 
 
 
-/* Background 1 initialization */
+/* 背景1初始化 */
 function initbg()
 {
 	background(21, 8, 50);
@@ -701,7 +695,7 @@ function Particle(x, y){
 		ellipse(this.pos.x, this.pos.y, r, r);
 	}
 }
-/* Refresh display background */
+/* 刷新显示背景 */
 function drawbg()
 {
 	noStroke();
@@ -728,7 +722,7 @@ function drawbg()
 	}  
 }
 
-/* background2 */
+/* 背景2 */
 class Scribbler
 {
 	constructor(x, y)
