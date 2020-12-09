@@ -1,7 +1,7 @@
 let plane;		   //big plane	
 let colors = [];   //color array
 let enemy = [];  //enemy plane array
-let bullet = [];  //bullet array
+let bullet = [];  //bullets array
 let score = 0;     //score
 let level = 0;
 
@@ -11,12 +11,12 @@ let bnum = 0;
 let blood = 20;
 let isPause = 0;      //pause or not
 let hitRange = 40;   //hitting range
-// Explosion effect variable 
+/* Explosion effect variable */
 plumes = [];
-// Explosion effect color 
+/* Explosion effect color array */
 firecolors = ["red", "lime", "blue", "cyan", "yellow", "orange", "magenta"];
 
-// Background 1 variable 
+/* Background 1 variable */
 var particles_a = [];
 var particles_b = [];
 var particles_c = [];
@@ -27,7 +27,8 @@ let winlose = 0;
 
 let enemyhitnum = 1;
 let enemyspeed = 5;
-//background2 
+let isStart  = 0;
+/* Background 2 */
 let scrblrs = [];
 const COLS = createCols("https://coolors.co/242220-ff6a45-ffb094-7934ad-1bc4b6-6a7a5b");
 let img;
@@ -38,9 +39,9 @@ function preload()
 {
 	img = loadImage("bg0.jpg");
 	img1 = loadImage("bg1.jpg");
+	img2 = loadImage("start.jpg");
 }
 
-//Initialization function 
 function setup() 
 {
 	createCanvas(400,windowHeight);
@@ -55,7 +56,7 @@ function setup()
 	{
 		enemy.push(new Enemy(401,windowHeight+1));
 	}
-	// Create a bullet 
+	/* create bullet */
 	for(let i = 0 ; i < bulletNum; i++)
 	{
 		bullet.push(new Bullet(i%4));
@@ -67,13 +68,21 @@ function setup()
 	{
 		scrblrs.push(new Scribbler(width/2, height /2));
 	}
+	//image(img2,0,0);
+	//noLoop();
 }
 
-// The loop executes the drawing 
-function draw() 
+function beforeDraw(){
+	image(img2,0,0);
+	//noLoop();
+}
+
+
+
+function afterdraw() 
 {
 	// background(0);
-	//The dynamic background
+	//dynamic background
 	if(level == 0)
 	{
 		image(img,0,0)
@@ -100,22 +109,22 @@ function draw()
 	}
 	 
 	
-	// Draw  star 
+	/* draw star */
 	star();
-	//Draw small plane
+	//draw small planes
 	for (let i = 1; i < enemy.length; i++)
 	{
 		enemy[i].draw(enemy[i].x,enemy[i].y+enemy[i].len,colors[i%4]);
 	} 
-	// bullet 
+	/* bullets */
 	for(let i = 0 ; i < bulletNum; i++)
 	{
 		bullet[i].update();
 		bullet[i].draw();
 	}
-	// draw big plane 
+	/* draw big plane */
 	plane.drawPlane(); 
-	// Draw enemy planes 
+	/* draw enemy big plane */
 	eplane.drawPlane();
 	if(ebullet.isUsed == 1)
 	{
@@ -127,7 +136,7 @@ function draw()
 		ebullet.init(width/2,80);
 	}
 	
-	//Simple explosion effect display
+	// explosion effect display
 	for (let i = 0; i < plumes.length; i++){
 		plumes[i].update();
 		plumes[i].pDraw();
@@ -136,17 +145,32 @@ function draw()
 			i -= 1;
 		}
 	}
-	// Display status information 
+	/* Display status  */
 	bnum = (bulletNum - bulletuseNum);
 	/* console.log(bulletNum);
 	console.log(bulletuseNum);
 	console.log(bnum); */
 	showStatus();
-	//Decide whether to clear, or fail
+	//pass or fail
 	winOrLose();
 }
 
-// Winning or losing judgment 
+
+//loop executes drawing
+function draw(){
+	if(isStart == 0){
+		beforeDraw();
+		textSize(19);
+		fill(143,136,187);
+		text("fire",32,48);
+	}else{
+		afterdraw();
+	}
+}
+
+
+
+//Judge the winning or losing
 function winOrLose()
 {
 	if(blood<0)
@@ -171,21 +195,16 @@ function winOrLose()
 	}
 }
 
-/* Mouse click event */
+/* Mouse click events */
 function mousePressed()
 {
-	/* for(let i = 0 ; i < bulletNum; i++)
+	// 370   470   70   170  Click to start in the middle
+	if( mouseX>70 &&mouseX<170 &&mouseY>370&&mouseY<470 )
 	{
-		if(bullet[i].getUsed()===0)
-		{
-			bullet[i].init(plane.planeX,plane.planeY);
-			bulletuseNum++;
-			break;
-		}
-	} */
-	
+		isStart = 1;
+	}
 }
-/* effect */
+/* add effect */
 function addBloom(x,y)
 {
 	let numPlumes = int(random(100, 500));
@@ -195,7 +214,7 @@ function addBloom(x,y)
 	}
 }
 
-/* Explosion effect class */
+/* explosion effect class */
 class Plume {
 	constructor(x, y, s, c){
 		this.x = x;
@@ -253,15 +272,15 @@ function keyPressed()
 			loop();
 		}
 	}
-	/* N Next game */
+	/* N next game */
 	if(keyCode === 78)  
 	{
-		/* Win the next game */
+		/* win and next game */
 		if(winlose === 2)
 		{
 			level++;
-			enemyhitnum = enemyhitnum+level; //number hit
-			enemyspeed = enemyspeed+level;  //speef
+			enemyhitnum = enemyhitnum+level; //hit number
+			enemyspeed = enemyspeed+level;  //speed
 			/* Modify the parameters for the next game */
 			for (let i = 1; i < enemy.length; i++)
 			{
@@ -275,7 +294,7 @@ function keyPressed()
 	/* R restart */
 	if(keyCode === 82)  
 	{
-		/* fail and restart */
+		/* lose and restart */
 		if(winlose === 1 || winlose === 2)
 		{
 			blood = 20;
@@ -288,71 +307,6 @@ function keyPressed()
 
 /* bullet class*/
 class Bullet
-{
-	/* Constructor, called when the object is created */
-	constructor(color)
-	{
-		this.bulletX = 0;   //bullet position
-		this.bulletY = 0;	//bullet position
-		this.isUsed  = 0;   //used or not   
-		this.color  = color;   //bullet color  
-		this.speed = 3;		   //bullet speed
-	}
-	
-	/* Initializes the bullet information according to the firing position of the bullet */
-	init(x,y)
-	{
-		this.bulletX = x;   //bullet position
-		this.bulletY = y;	//bullet position
-		this.isUsed  = 1;   //used or not  
-	}	
-	
-	/* draw function */
-	draw()
-	{
-		if(this.isUsed == 1)
-		{
-			this.drawbullet();
-		}
-	}
-	/* update bullet position */
-	update()
-	{
-		if(this.isUsed == 1)
-		{
-			//update bullet position
-			this.bulletY = this.bulletY - this.speed;
-			if(this.bulletY<10)
-			{
-				this.isUsed  = 0;
-				bulletuseNum--;
-			}
-		}
-	}
-	
-	/* draw bullet */
-	drawbullet()
-	{
-		stroke(colors[this.color]%4);
-		fill(colors[this.color%4]);
-		ellipse(this.bulletX,this.bulletY,3,15);
-	}
-	/* get bullet usage */
-	getUsed()
-	{
-		return this.isUsed;
-	}
-	
-	/* clear bullet usage */
-	clearUsed()
-	{
-		this.isUsed = 0;
-	}
-}
-
-
-/* bullet class*/
-class EnemyBullet
 {
 	/* Constructor, called when the object is created */
 	constructor(color)
@@ -380,11 +334,77 @@ class EnemyBullet
 			this.drawbullet();
 		}
 	}
+	/* update bullet position*/
+	update()
+	{
+		if(this.isUsed == 1)
+		{
+			//update bullet position
+			this.bulletY = this.bulletY - this.speed;
+			if(this.bulletY<10)
+			{
+				this.isUsed  = 0;
+				bulletuseNum--;
+			}
+		}
+	}
+	
+	/* draw bullet */
+	drawbullet()
+	{
+		stroke(colors[this.color]%4);
+		fill(colors[this.color%4]);
+		ellipse(this.bulletX,this.bulletY,3,15);
+	}
+	/* get the usage of the bullets  */
+	getUsed()
+	{
+		return this.isUsed;
+	}
+	
+	/* clear the used of the bullets */
+	clearUsed()
+	{
+		this.isUsed = 0;
+	}
+}
+
+
+/* bullet class*/
+class EnemyBullet
+{
+	/* Constructor, called when the object is created */
+	constructor(color)
+	{
+		this.bulletX = 0;   //bullet position
+		this.bulletY = 0;	//bullet position
+		this.isUsed  = 0;   //used or not  
+		this.color  = color;   //bullet color 
+		this.speed = 3;		   //bullet speed
+	}
+	
+	/* Initializes the bullet information according to the firing position of the bullet */
+	init(x,y)
+	{
+		this.bulletX = x;   //bullet position
+		this.bulletY = y;	//bullet position
+		this.isUsed  = 1;   //used or not  
+	}	
+	
+	/* draw function */
+	draw()
+	{
+		if(this.isUsed == 1)
+		{
+			this.drawbullet();
+		}
+	}
 	/* update bullet position */
 	update()
 	{
 		if(this.isUsed == 1)
 		{
+			//update bullet position
 			this.bulletY = this.bulletY + this.speed;
 			if(this.bulletY> height)
 			{
@@ -400,12 +420,13 @@ class EnemyBullet
 		fill(colors[this.color%4]);
 		ellipse(this.bulletX,this.bulletY,3,15);
 	}
-	/* bullet usage */
+	/* get bullets usage */
 	getUsed()
 	{
 		return this.isUsed;
 	}
 	
+	/* clear used bullet */
 	clearUsed()
 	{
 		this.isUsed = 0;
@@ -413,20 +434,19 @@ class EnemyBullet
 }
 
 
-/*enemy big plane */
+/*enemy big plane  */
 class EnemyPlane 
 {
-	/* Called when the constructor creates the object */
 	constructor() 
 	{
 		this.planeX = width/2;
 		this.planeY = 50;
 	}
-	/* draw plane  */
 	drawPlane()
 	{
 		this.plane(this.planeX,this.planeY);
 	}
+	/* draw plane shape */
 	plane(x,y)
 	{
 		fill(240,166,254);
@@ -438,32 +458,34 @@ class EnemyPlane
 }
 
 
-/* plane class */
+/* big plane class */
 class Plane 
 {
 	constructor() 
 	{
 		this.planeX = 160;
 		this.planeY = 500;
-		this.speed = 5;    //速度
+		this.speed = 5;    //speed
 	}
-	/* modify plane position */
+	/* modify the plane position */
 	mouseLister(x,y)
 	{
 		this.planeX = x;
 		this.planeY = y;
 	}
+	/* draw plane  */
 	drawPlane()
 	{
 		this.update();
-		/* Determine if a large plane was hit */
+		/* Determine if the big plane was hit */
 		for (let i = 1; i < enemy.length; i++)
 		{
 			//enemy[i].draw(enemy[i].x,enemy[i].y+enemy[i].len,colors[i%4]);
 			if(Math.abs(enemy[i].x - this.planeX)<40&&Math.abs(enemy[i].y - this.planeY)<40)
 			{
-				//being hit
+				//be hit
 				blood--;
+				//small plane invalid
 				enemy[i].clearEnemy();
 			}
 		} 
@@ -487,7 +509,6 @@ class Plane
 	{
 		let px;
 		let py;
-		//key pressed
 		if(keyIsPressed === true)
 		{
 			//arrow key left
@@ -498,7 +519,7 @@ class Plane
 				let planeY= this.planeY   ;//mouseY<40?40:mouseY>560?560:mouseY;
 				this.mouseLister(planeX,planeY);
 			}
-			//arrow key right 
+			//arrow key right
 			if (keyCode === RIGHT_ARROW) 
 			{
 				px = this.planeX+this.speed;
@@ -506,7 +527,7 @@ class Plane
 				let planeY= this.planeY   ;//mouseY<40?40:mouseY>560?560:mouseY;
 				this.mouseLister(planeX,planeY);
 			}
-			//arrow key up 
+			//arrow key up
 			if (keyCode === UP_ARROW) 
 			{
 				py = this.planeY-this.speed;
@@ -514,7 +535,7 @@ class Plane
 				let planeY= py<40?40:py>560?560:py;
 				this.mouseLister(planeX,planeY);
 			}
-			//arrow key down 
+			//arrow key down
 			if (keyCode === DOWN_ARROW) 
 			{
 				py = this.planeY+this.speed;
@@ -525,7 +546,7 @@ class Plane
 		}	
 	}
 	
-	/* draw plane */
+	/* draw plane shape */
 	plane(x,y)
 	{
 		fill(58,166,254);
@@ -536,7 +557,7 @@ class Plane
 	}
 }
 
-/* enemy plane class */
+/* enemy plane */
 class Enemy 
 {
 	constructor(x,y) 
@@ -544,8 +565,8 @@ class Enemy
 		this.x = x;
 		this.y = y;
 		this.len = 5;  //Control speed control difficulty
-		this.hitnum = 0; //The number of hits, control difficulty
-		this.maxHitnum = 1; //max hit number
+		this.hitnum = 0; //The number of hits,control difficulty
+		this.maxHitnum = 1; //Maximum hits
 	}
 	/* Modifies the speed and hit times of small aircraft */
 	changelevel(num,speed)
@@ -554,12 +575,12 @@ class Enemy
 		this.len = speed;
 	}
 	
-	/* draw small planes */
+	/* Draw small plane */
 	draw(x,y,c)
 	{
 		/* if(plane.planeX<x&&(x-plane.planeX)<50||plane.planeX>x&&(plane.planeX-x)<50)
 		{
-			//if hit score plus
+			//Hit score plus
 			score++;   
 			y=windowHeight+10;
 			x=999;
@@ -568,13 +589,13 @@ class Enemy
 		
 		for(let i = 0;i< bulletNum;i++)
 		{
-			//valid bullet
+			//Effective bullet
 			if(bullet[i].getUsed()===1)
 			{
 				//Determine if the enemy plane has been hit
 				if(Math.abs(x-bullet[i].bulletX)<hitRange && Math.abs(y-bullet[i].bulletY)<hitRange)
 				{
-					//bullet invalid
+					//The bullet is invalid
 					bullet[i].clearUsed();
 					bulletuseNum--;
 					//Hit count plus 1
@@ -599,7 +620,7 @@ class Enemy
 			//restart
 			this.x = (int)(Math.random()*350)+40;
 			this.y = -(int)(Math.random()*200);
-			this.hitnum = 0; //reset
+			this.hitnum = 0; //reset hit times
 		}
 		else
 		{
@@ -614,7 +635,7 @@ class Enemy
 		this.y=windowHeight+10;
 		this.x=999;
 	}
-	/*Draw the shape of a small plane*/
+	/*small plane shape*/
 	MiniPlane(x,y,c)
 	{
 		fill(c);
@@ -642,7 +663,7 @@ function mouseMoved()
 {
 	
 }
-/* Displays the score level and the amount of blood */
+/* Displays the score ,level and the amount of blood */
 function showStatus() 
 {
 	/* score */
@@ -652,8 +673,8 @@ function showStatus()
 	/* level */
 	fill(255);
 	textSize(16);
-	text("lovel:"+level, 5, 32);
-	/* blood */
+	text("level:"+level, 5, 32);
+	/* bullet left */
 	fill(255);
 	textSize(16);
 	text("bullet:"+bnum, 5, 48);
@@ -701,7 +722,7 @@ function Particle(x, y){
 		ellipse(this.pos.x, this.pos.y, r, r);
 	}
 }
-/* Refresh display background */
+/* Refresh display background*/
 function drawbg()
 {
 	noStroke();
@@ -728,7 +749,7 @@ function drawbg()
 	}  
 }
 
-/* background2 */
+/* backgroud2 */
 class Scribbler
 {
 	constructor(x, y)
